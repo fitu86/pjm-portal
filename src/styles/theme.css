@@ -1,0 +1,51 @@
+:root {
+  --color-background: #0f172a;
+  --color-surface: #162033;
+  --color-surface-elevated: #202d44;
+  --color-border: #2b3952;
+  --color-border-strong: #405273;
+  --color-text: #f1f5f9;
+  --color-text-muted: #a7b4c9;
+  --color-accent: #60a5fa;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
+}
+
+@layer components {
+  .shadow-brutal {
+    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.2);
+  }
+
+  .border-strong {
+    border: 2px solid var(--color-border-strong);
+  }
+
+  .bg-surface {
+    background-color: var(--color-surface);
+  }
+
+  .bg-surface-elevated {
+    background-color: var(--color-surface-elevated);
+  }
+
+  .text-muted {
+    color: var(--color-text-muted);
+  }
+
+  .font-mono-data {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  }
+}
