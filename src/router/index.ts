@@ -64,6 +64,11 @@ const routes: RouteRecordRaw[] = [
         name: 'achievements',
         component: () => import('@/features/achievements/views/AchievementsView.vue'),
       },
+      {
+        path: 'knowledge',
+        name: 'knowledge',
+        component: () => import('@/features/knowledge/views/KnowledgeView.vue'),
+      },
     ],
   },
 ];

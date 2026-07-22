@@ -7,6 +7,9 @@ import type { Achievement } from '@/types/achievement';
 import type { Milestone } from '@/types/milestone';
 import type { Progress } from '@/types/progress';
 import type { TimeBlock } from '@/types/time-block';
+import type { Source } from '@/types/source';
+import type { Knowledge } from '@/types/knowledge';
+import type { Experiment } from '@/types/experiment';
 
 type StringOrObject = string | Record<string, unknown>;
 
@@ -179,6 +182,66 @@ export function normalizeTimeBlock(raw: Record<string, unknown>): TimeBlock {
     notas: raw.notas != null ? String(raw.notas) : null,
     proyecto_id: extractId(raw.proyecto_id as StringOrObject) ?? '',
     tarea_id: extractId(raw.tarea_id as StringOrObject),
+  };
+}
+
+export function normalizeSource(raw: Record<string, unknown>): Source {
+  return {
+    id: String(raw.id),
+    titulo: String(raw.titulo ?? ''),
+    url: String(raw.url ?? ''),
+    tipo: (raw.tipo as Source['tipo']) ?? 'other',
+    canonical_url: raw.canonical_url != null ? String(raw.canonical_url) : null,
+    proveedor: raw.proveedor != null ? String(raw.proveedor) : null,
+    autor: raw.autor != null ? String(raw.autor) : null,
+    external_id: raw.external_id != null ? String(raw.external_id) : null,
+    version_ref: raw.version_ref != null ? String(raw.version_ref) : null,
+    fecha_publicacion: raw.fecha_publicacion != null ? String(raw.fecha_publicacion) : null,
+    estado: (raw.estado as Source['estado']) ?? 'inbox',
+    prioridad: (raw.prioridad as Source['prioridad']) ?? 'media',
+    motivo_interes: raw.motivo_interes != null ? String(raw.motivo_interes) : null,
+    resumen: raw.resumen != null ? String(raw.resumen) : null,
+    fecha_ultima_revision: raw.fecha_ultima_revision != null ? String(raw.fecha_ultima_revision) : null,
+    date_created: String(raw.date_created ?? ''),
+    date_updated: raw.date_updated != null ? String(raw.date_updated) : null,
+  };
+}
+
+export function normalizeKnowledge(raw: Record<string, unknown>): Knowledge {
+  return {
+    id: String(raw.id),
+    titulo: String(raw.titulo ?? ''),
+    tipo: (raw.tipo as Knowledge['tipo']) ?? 'observation',
+    contenido: raw.contenido != null ? String(raw.contenido) : null,
+    capacidad_id: extractId(raw.capacidad_id as StringOrObject),
+    proyecto_id: extractId(raw.proyecto_id as StringOrObject),
+    summary: raw.summary != null ? String(raw.summary) : null,
+    estado_revision: (raw.estado_revision as Knowledge['estado_revision']) ?? 'capturado',
+    madurez: (raw.madurez as Knowledge['madurez']) ?? 'observacion',
+    confianza: (raw.confianza as Knowledge['confianza']) ?? 'no_verificado',
+    date_created: String(raw.date_created ?? ''),
+    date_updated: raw.date_updated != null ? String(raw.date_updated) : null,
+  };
+}
+
+export function normalizeExperiment(raw: Record<string, unknown>): Experiment {
+  return {
+    id: String(raw.id),
+    titulo: String(raw.titulo ?? ''),
+    objetivo: raw.objetivo != null ? String(raw.objetivo) : null,
+    hipotesis: raw.hipotesis != null ? String(raw.hipotesis) : null,
+    metodo: raw.metodo != null ? String(raw.metodo) : null,
+    criterios_exito: raw.criterios_exito != null ? String(raw.criterios_exito) : null,
+    estado: (raw.estado as Experiment['estado']) ?? 'idea',
+    resultado: raw.resultado != null ? String(raw.resultado) : null,
+    conclusion: raw.conclusion != null ? String(raw.conclusion) : null,
+    start_date: raw.start_date != null ? String(raw.start_date) : null,
+    end_date: raw.end_date != null ? String(raw.end_date) : null,
+    proyecto_id: extractId(raw.proyecto_id as StringOrObject),
+    conocimiento_origen_id: extractId(raw.conocimiento_origen_id as StringOrObject),
+    tarea_id: extractId(raw.tarea_id as StringOrObject),
+    date_created: String(raw.date_created ?? ''),
+    date_updated: raw.date_updated != null ? String(raw.date_updated) : null,
   };
 }
 

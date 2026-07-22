@@ -18,6 +18,15 @@ import {
   openSessions,
   sessionsWithoutOutcome,
 } from './time';
+import {
+  sourcesByType,
+  experimentsByStatus,
+  knowledgeAdoptionRate,
+  knowledgeDiscardRate,
+  flowCompletionRate,
+  knowledgePerSource,
+  experimentsPerKnowledge,
+} from './knowledge';
 
 export {
   effectiveTaskProgress,
@@ -37,4 +46,11 @@ export {
   timeBlocksByStatus,
   openSessions,
   sessionsWithoutOutcome,
+  sourcesByType,
+  experimentsByStatus,
+  knowledgeAdoptionRate,
+  knowledgeDiscardRate,
+  flowCompletionRate,
+  knowledgePerSource,
+  experimentsPerKnowledge,
 };

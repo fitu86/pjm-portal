@@ -18,4 +18,10 @@ export const queryKeys = {
   decisionsByProject: (projectId: string) => ['decisions', 'project', projectId] as const,
   achievements: ['achievements'] as const,
   achievementsByProject: (projectId: string) => ['achievements', 'project', projectId] as const,
+  sources: ['sources'] as const,
+  sourcesByProject: (projectId: string) => ['sources', 'project', projectId] as const,
+  knowledge: ['knowledge'] as const,
+  knowledgeByProject: (projectId: string) => ['knowledge', 'project', projectId] as const,
+  experiments: ['experiments'] as const,
+  experimentsByProject: (projectId: string) => ['experiments', 'project', projectId] as const,
 } as const;

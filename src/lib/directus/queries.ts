@@ -9,6 +9,9 @@ import {
   normalizeMilestone,
   normalizeProgress,
   normalizeTimeBlock,
+  normalizeSource,
+  normalizeKnowledge,
+  normalizeExperiment,
   extractRelatedName,
 } from './normalize';
 import type { Project } from '@/types/project';
@@ -21,6 +24,9 @@ import type { MilestoneWithProject } from '@/types/milestone';
 import type { ProgressWithTask } from '@/types/progress';
 import type { TimeBlockWithProject } from '@/types/time-block';
 import type { Brief } from '@/types/brief';
+import type { SourceWithProject } from '@/types/source';
+import type { KnowledgeWithProject } from '@/types/knowledge';
+import type { ExperimentWithProject } from '@/types/experiment';
 
 const PROJECT_FIELDS = [
   'id', 'nombre', 'descripcion', 'tipo', 'estado', 'orden',
@@ -88,6 +94,31 @@ const BRIEF_FIELDS = [
   'id', 'proyecto_id', 'problema', 'objetivo',
   'alcance_incluye', 'alcance_excluye', 'criterios_exito',
   'restricciones', 'recursos', 'referencias', 'date_updated',
+];
+
+const SOURCE_FIELDS = [
+  'id', 'titulo', 'url', 'tipo', 'canonical_url', 'proveedor', 'autor',
+  'external_id', 'version_ref', 'fecha_publicacion', 'estado', 'prioridad',
+  'motivo_interes', 'resumen', 'fecha_ultima_revision',
+  'date_created', 'date_updated',
+  'projects.project_id.id', 'projects.project_id.nombre', 'projects.project_id.code',
+];
+
+const KNOWLEDGE_FIELDS = [
+  'id', 'titulo', 'tipo', 'contenido', 'capacidad_id', 'summary',
+  'estado_revision', 'madurez', 'confianza',
+  'date_created', 'date_updated',
+  'proyecto_id.id', 'proyecto_id.nombre', 'proyecto_id.code',
+  'sources.source_id.id', 'sources.source_id.titulo', 'sources.source_id.url',
+  'topics.topic_id.id', 'topics.topic_id.nombre',
+];
+
+const EXPERIMENT_FIELDS = [
+  'id', 'titulo', 'objetivo', 'hipotesis', 'metodo', 'criterios_exito',
+  'estado', 'resultado', 'conclusion', 'start_date', 'end_date',
+  'date_created', 'date_updated',
+  'proyecto_id.id', 'proyecto_id.nombre', 'proyecto_id.code',
+  'conocimiento_origen_id.id', 'conocimiento_origen_id.titulo',
 ];
 
 export async function fetchProjects(
@@ -300,4 +331,103 @@ export async function fetchBriefByProject(
   } catch {
     return null;
   }
+}
+
+export async function fetchSources(
+  params?: DirectusQueryParams,
+  signal?: AbortSignal
+): Promise<SourceWithProject[]> {
+  const raw = await directusGet<Record<string, unknown>>('pjm_sources', {
+    fields: SOURCE_FIELDS,
+    sort: ['-date_created'],
+    ...params,
+  }, signal);
+  return raw.map((r) => {
+    const source = normalizeSource(r);
+    const projects = (r.projects as Array<Record<string, unknown>> | undefined)
+      ?.map((rel) => rel.project_id as Record<string, unknown>)
+      .filter(Boolean)
+      .map((p) => ({
+        id: String(p.id ?? ''),
+        nombre: String(p.nombre ?? ''),
+        code: p.code != null ? String(p.code) : null,
+      }));
+    return { ...source, projects };
+  });
+}
+
+export async function fetchSourcesByProject(
+  projectId: string,
+  signal?: AbortSignal
+): Promise<SourceWithProject[]> {
+  return fetchSources({ filter: { projects: { project_id: { id: { _eq: projectId } } } } }, signal);
+}
+
+export async function fetchKnowledge(
+  params?: DirectusQueryParams,
+  signal?: AbortSignal
+): Promise<KnowledgeWithProject[]> {
+  const raw = await directusGet<Record<string, unknown>>('pjm_knowledge', {
+    fields: KNOWLEDGE_FIELDS,
+    sort: ['-date_created'],
+    ...params,
+  }, signal);
+  return raw.map((r) => {
+    const knowledge = normalizeKnowledge(r);
+    const sources = (r.sources as Array<Record<string, unknown>> | undefined)
+      ?.map((rel) => rel.source_id as Record<string, unknown>)
+      .filter(Boolean)
+      .map((s) => ({
+        id: String(s.id ?? ''),
+        titulo: String(s.titulo ?? ''),
+      }));
+    const topics = (r.topics as Array<Record<string, unknown>> | undefined)
+      ?.map((rel) => rel.topic_id as Record<string, unknown>)
+      .filter(Boolean)
+      .map((t) => ({
+        id: String(t.id ?? ''),
+        nombre: String(t.nombre ?? ''),
+      }));
+    return {
+      ...knowledge,
+      proyecto_nombre: extractRelatedName(r.proyecto_id) ?? undefined,
+      proyecto_code: extractRelatedName((r.proyecto_id as Record<string, unknown>)?.code as unknown) ?? null,
+      sources,
+      topics,
+    };
+  });
+}
+
+export async function fetchKnowledgeByProject(
+  projectId: string,
+  signal?: AbortSignal
+): Promise<KnowledgeWithProject[]> {
+  return fetchKnowledge({ filter: { proyecto_id: projectId } }, signal);
+}
+
+export async function fetchExperiments(
+  params?: DirectusQueryParams,
+  signal?: AbortSignal
+): Promise<ExperimentWithProject[]> {
+  const raw = await directusGet<Record<string, unknown>>('pjm_experiments', {
+    fields: EXPERIMENT_FIELDS,
+    sort: ['-date_created'],
+    ...params,
+  }, signal);
+  return raw.map((r) => {
+    const experiment = normalizeExperiment(r);
+    return {
+      ...experiment,
+      proyecto_nombre: extractRelatedName(r.proyecto_id) ?? undefined,
+      proyecto_code: extractRelatedName((r.proyecto_id as Record<string, unknown>)?.code as unknown) ?? null,
+      knowledge_titulo: extractRelatedName((r as Record<string, unknown>).conocimiento_origen_id, 'titulo'),
+    };
+  });
+}
+
+export async function fetchExperimentsByProject(
+  projectId: string,
+  signal?: AbortSignal
+): Promise<ExperimentWithProject[]> {
+  return fetchExperiments({ filter: { proyecto_id: projectId } }, signal);
 }
