@@ -6,11 +6,9 @@
 
 ## 1. Conexión MCP
 
-Se verificó la conexión al servidor MCP de PJM configurado en `~/.config/opencode/opencode.jsonc`:
+Se verificó la conexión al servidor MCP de PJM configurado en `~/.config/opencode/opencode.jsonc`.
 
-```
-URL: https://pjm.para.autos/mcp?access_token=bTcaMw-Dsa5R0XsaFJwbztpkCkQ7soK4
-```
+> El token de acceso no se incluye en este documento. Nunca deben publicarse credenciales reales en el repositorio.
 
 Se obtuvo el listado completo de colecciones disponibles (50+ colecciones), incluyendo las 6 relevantes:
 - `pjm_sources`
@@ -44,17 +42,18 @@ Se consultó el esquema detallado de cada colección. Los campos reales difieren
 
 ### Query Fields
 
-| Constante | Campos |
+| Constante | Campos relacionales corregidos |
 |---|---|
-| `SOURCE_FIELDS` | 17 campos, incluye `projects.id`, `projects.nombre`, `projects.code` |
-| `KNOWLEDGE_FIELDS` | 15 campos, incluye `sources.id`, `sources.titulo`, `topics.id`, `topics.nombre` |
-| `EXPERIMENT_FIELDS` | 14 campos, incluye `conocimiento_origen_id.id`, `conocimiento_origen_id.titulo` |
+| `SOURCE_FIELDS` | `projects.project_id.id`, `projects.project_id.nombre`, `projects.project_id.code` |
+| `KNOWLEDGE_FIELDS` | `sources.source_id.id`, `sources.source_id.titulo`, `topics.topic_id.id`, `topics.topic_id.nombre` |
+| `EXPERIMENT_FIELDS` | `conocimiento_origen_id.id`, `conocimiento_origen_id.titulo` |
 
 ### Fetch Functions
 
-- `fetchSources`: Retorna `projects` como array (M2M), no `proyecto_nombre`
-- `fetchKnowledge`: Retorna `sources` y `topics` como arrays (M2M)
-- `fetchExperiments`: Usa `conocimiento_origen_id` en vez de `knowledge_id`
+- `fetchSources`: desenvuelve `projects[].project_id` y retorna `projects` como array M2M.
+- `fetchKnowledge`: desenvuelve `sources[].source_id` y `topics[].topic_id`.
+- `fetchExperiments`: usa `conocimiento_origen_id` en vez de `knowledge_id`.
+- `fetchSourcesByProject`: filtra por `projects.project_id.id`.
 
 ### Componentes
 
@@ -67,12 +66,12 @@ Se consultó el esquema detallado de cada colección. Los campos reales difieren
 
 ### Métricas
 
-- `knowledgeDiscardRate`: Cambiado de `descartado` a `cancelado`
-- `useKnowledgeFlow`: Cambiado de `descartado` a `cancelado`
+- `knowledgeDiscardRate`: cambiado de `descartado` a `cancelado`.
+- `useKnowledgeFlow`: cambiado de `descartado` a `cancelado`.
 
 ### Tests
 
-- 14 tests actualizados para nuevos tipos y valores de estado
+- 14 tests actualizados para nuevos tipos y valores de estado.
 
 ## 4. Resultados de Validación
 
@@ -85,17 +84,17 @@ Se consultó el esquema detallado de cada colección. Los campos reales difieren
 ## 5. Diferencias Clave vs Esquema Asumido
 
 ### pjm_sources
-- **No tiene** `descripcion` ni `proyecto_id` (relación es M2M via `projects`)
-- **Tiene**: `canonical_url`, `proveedor`, `external_id`, `version_ref`, `fecha_publicacion`, `estado`, `prioridad`, `motivo_interes`, `resumen`, `fecha_ultima_revision`
-- **tipo**: 12 opciones (repository, article, news, documentation, paper, video, application, book, dataset, tool, website, other)
+- **No tiene** `descripcion` ni `proyecto_id` (relación M2M mediante `projects[].project_id`).
+- **Tiene**: `canonical_url`, `proveedor`, `external_id`, `version_ref`, `fecha_publicacion`, `estado`, `prioridad`, `motivo_interes`, `resumen`, `fecha_ultima_revision`.
+- **tipo**: 12 opciones (repository, article, news, documentation, paper, video, application, book, dataset, tool, website, other).
 
 ### pjm_knowledge
-- **No tiene** `tags` ni `source_id` (relación es M2M via `sources`)
-- **Tiene**: `tipo` (10 opciones), `capacidad_id`, `summary`, `estado_revision`, `madurez`, `confianza`
-- **Relaciones**: `sources` (M2M), `topics` (M2M), `experiments` (O2M)
+- **No tiene** `tags` ni `source_id` (relaciones M2M mediante `sources[].source_id` y `topics[].topic_id`).
+- **Tiene**: `tipo` (10 opciones), `capacidad_id`, `summary`, `estado_revision`, `madurez`, `confianza`.
+- **Relaciones**: `sources` (M2M), `topics` (M2M), `experiments` (O2M).
 
 ### pjm_experiments
-- **No tiene** `metodologia` (se llama `metodo`)
-- **No tiene** `knowledge_id` (se llama `conocimiento_origen_id`)
-- **Tiene**: `objetivo`, `criterios_exito`, `conclusion`, `start_date`, `end_date`, `tarea_id`
-- **estado**: `idea, planeado, en_progreso, completado, cancelado`
+- **No tiene** `metodologia` (se llama `metodo`).
+- **No tiene** `knowledge_id` (se llama `conocimiento_origen_id`).
+- **Tiene**: `objetivo`, `criterios_exito`, `conclusion`, `start_date`, `end_date`, `tarea_id`.
+- **estado**: `idea, planeado, en_progreso, completado, cancelado`.
